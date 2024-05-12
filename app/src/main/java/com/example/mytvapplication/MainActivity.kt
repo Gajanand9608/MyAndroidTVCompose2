@@ -20,7 +20,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.ui.PlayerView
-import com.example.mytvapplication.constant.Constants
 import com.example.mytvapplication.ui.theme.MyTVApplicationTheme
 import com.google.firebase.Firebase
 import com.google.firebase.database.DataSnapshot
