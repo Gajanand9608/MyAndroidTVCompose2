@@ -37,6 +37,10 @@ import androidx.media3.ui.PlayerView
 import androidx.tv.material3.Icon
 import androidx.tv.material3.IconButton
 import com.example.mytvapplication.ui.theme.MyTVApplicationTheme
+import com.google.firebase.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.analytics.logEvent
+import com.google.firebase.app
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -45,6 +49,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MyTVApplicationTheme {
+                Firebase.analytics.logEvent("Tv_started",null)
                 val viewModel = hiltViewModel<MainViewModel>()
                 val videoItems by viewModel.videoItems.collectAsState(emptyList())
 
@@ -109,6 +114,9 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }, modifier = Modifier
+                            .clickable {
+                                Firebase.analytics.logEvent("hello",null)
+                            }
                             .fillMaxSize()
                             .aspectRatio(16 / 9f)
                     )
