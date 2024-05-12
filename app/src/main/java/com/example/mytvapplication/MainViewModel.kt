@@ -1,6 +1,7 @@
 package com.example.mytvapplication
 
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,29 +34,18 @@ class MainViewModel @Inject constructor(
         }
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-//    val videoItems2 = videoUris2.map { uris ->
-//        uris.map { uri ->
-//            VideoItem(
-//                contentUri = uri,
-//                mediaItem = MediaItem.fromUri(uri),
-//                name = metaDataReader.getMetaDataFromUri(uri)?.fileName ?: "No Name"
-//            )
-//        }
-//    }
-
     init {
-        addVideoUri()
         player.prepare()
-//        player.playWhenReady = true
     }
 
-    fun addVideoUri() {
-//        savedStateHandle["videoUris"] = videoUris.value + uri
-//        savedStateHandle["videoUris2"] = videoUris2.value?.plus(uri)
-
-//        player.addMediaItem(MediaItem.fromUri(uri))
-//        player.addMediaItem(MediaItem.fromUri("http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"))
-        player.addMediaItem(MediaItem.fromUri("https://commondatastorage.googleapis.com/android-tv/Sample%20videos/Zeitgeist/Zeitgeist%202010_%20Year%20in%20Review.mp4"))
+    fun addVideoUri(uris: List<String>?) {
+        uris?.filter {it.startsWith("http") && it.contains(".mp4") }?.let { uris ->
+            val mediaItems = uris.map {
+                MediaItem.fromUri(it)
+            }
+            player.setMediaItems(mediaItems)
+        }
+        Log.d("Gajanand", "addVideoUri: ${player.mediaItemCount} ")
     }
 
     fun playVideo(uri: Uri) {
@@ -64,10 +54,6 @@ class MainViewModel @Inject constructor(
                 it.contentUri == uri
             }?.mediaItem ?: return
         )
-
-//        player.setMediaItem(
-//            videoItems2.value?.find { it.contentUri == uri }?.mediaItem ?: return
-//        )
     }
 
     override fun onCleared() {

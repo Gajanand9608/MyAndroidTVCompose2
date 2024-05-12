@@ -3,23 +3,11 @@ package com.example.mytvapplication
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FileOpen
-import androidx.tv.material3.Text
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,30 +22,44 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.media3.ui.PlayerView
-import androidx.tv.material3.Icon
-import androidx.tv.material3.IconButton
 import com.example.mytvapplication.ui.theme.MyTVApplicationTheme
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.analytics
-import com.google.firebase.analytics.logEvent
-import com.google.firebase.app
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.database
+import com.google.firebase.database.getValue
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val database = Firebase.database(Constants.database_url)
+        val myRef = database.getReference(Constants.reference)
         setContent {
             MyTVApplicationTheme {
-                Firebase.analytics.logEvent("Tv_started",null)
-                val viewModel = hiltViewModel<MainViewModel>()
-                val videoItems by viewModel.videoItems.collectAsState(emptyList())
 
+                val viewModel = hiltViewModel<MainViewModel>()
                 var lifeCycle by remember {
                     mutableStateOf(Lifecycle.Event.ON_CREATE)
                 }
 
                 val lifeCycleOwner = LocalLifecycleOwner.current
+
+                val postListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        val post = dataSnapshot.getValue<List<String>>()
+                        viewModel.addVideoUri(post)
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                    }
+                }
+
+                myRef.addValueEventListener(postListener)
 
                 DisposableEffect(key1 = lifeCycleOwner) {
                     val observer = LifecycleEventObserver { _, event ->
@@ -114,9 +116,6 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }, modifier = Modifier
-                            .clickable {
-                                Firebase.analytics.logEvent("hello",null)
-                            }
                             .fillMaxSize()
                             .aspectRatio(16 / 9f)
                     )
