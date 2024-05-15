@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val database = Firebase.database(Constants.database_url)
         val myRef = database.getReference(Constants.reference)
+
         setContent {
             MyTVApplicationTheme {
 
