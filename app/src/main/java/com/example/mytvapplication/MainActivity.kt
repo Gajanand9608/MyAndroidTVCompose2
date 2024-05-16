@@ -1,6 +1,7 @@
 package com.example.mytvapplication
 
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Column
@@ -78,6 +79,23 @@ class MainActivity : ComponentActivity() {
                         factory = { context ->
                             PlayerView(context).also {
                                 it.player = viewModel.player
+                                it.setOnKeyListener { v, keyCode, event ->
+                                    if (event.action == KeyEvent.ACTION_DOWN) {
+                                        when (keyCode) {
+                                            KeyEvent.KEYCODE_DPAD_CENTER, KeyEvent.KEYCODE_ENTER -> {
+                                                if (it.player?.isPlaying == true) {
+                                                   it.player?.pause()
+                                                } else {
+                                                    it.player?.play()
+                                                }
+                                                true
+                                            }
+                                            else -> false
+                                        }
+                                    } else {
+                                        false
+                                    }
+                                }
                             }
                         }, update = {
                             when (lifeCycle) {
